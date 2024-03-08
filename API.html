@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        input[type="text"],
+        input[type="button"] {
+            padding: 10px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="button"] {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        input[type="button"]:hover {
+            background-color: #0056b3;
+        }
+
+        .user-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .card {
+            background-color: #fff;
+            margin: 10px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        img {
+            width: 100%;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Welcome to the Contact List</h1>
+    <input type="text" id="searchInput" placeholder="Search">
+    <input type="button" id="searchButton" value="Search">
+    <input type="button" id="resetButton" value="Reset">
+    <div class="user-list" id="userList"></div>
+    <script>
+        var userList = null;
+
+        function renderList(data) {
+            document.getElementById("userList").innerHTML = data;
+        }
+
+        function mapUserhtml(users) {
+            const mappedUser = users.map(u => (`
+                <div class="card">
+                    <img src="https://robohash.org/${u.id}?set=set3&size=180x180" alt="Avatar">
+                    <div class="container">
+                        <h3>${u.username}</h3>
+                        <p>${u.email}</p>
+                        <p>${u.phone}</p>
+                    </div>
+                </div>
+            `));
+            return mappedUser.join("");
+        }
+
+        function getUsers() {
+            if (!userList) {
+                fetch("https://jsonplaceholder.typicode.com/users")
+                    .then(r => r.json())
+                    .then(r => {
+                        userList = r;
+                        const muh = mapUserhtml(r);
+                        renderList(muh);
+                    });
+            } else {
+                const muh = mapUserhtml(userList);
+                renderList(muh);
+            }
+        }
+
+        getUsers();
+
+        document.getElementById("searchButton").addEventListener("click", function () {
+            const searchValue = document.getElementById("searchInput").value.toLowerCase();
+            const filteredUsers = userList.filter(user => {
+                return (
+                    user.username.toLowerCase().includes(searchValue) ||
+                    user.email.toLowerCase().includes(searchValue) ||
+                    user.phone.toLowerCase().includes(searchValue)
+                );
+            });
+            const filteredHTML = mapUserhtml(filteredUsers);
+            renderList(filteredHTML);
+        });
+
+        document.getElementById("resetButton").addEventListener("click", function () {
+            getUsers();
+            document.getElementById("searchInput").value = "";
+        });
+    </script>
+</body>
+
+</html>
